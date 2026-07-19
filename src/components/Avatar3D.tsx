@@ -65,6 +65,7 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
   const clockRef    = useRef<THREE.Clock>(new THREE.Clock());
   const [loadError, setLoadError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [webglError, setWebglError] = useState(false);
 
   // ---------- Setup scene ----------
   useEffect(() => {
@@ -72,7 +73,14 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
     const el = mountRef.current;
 
     // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch (err) {
+      console.error("[Avatar3D] Gagal membuat konteks WebGL:", err);
+      setWebglError(true);
+      return;
+    }
     renderer.setSize(el.clientWidth, el.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -303,7 +311,7 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
       )}
 
       {/* Error placeholder (jika GLB gagal dimuat) */}
-      {loadError && (
+      {loadError && !webglError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 px-4">
           <span className="text-4xl mb-2">⚠️</span>
           <p className="text-sm font-bold text-red-400 mb-1">Avatar 3D Tidak Ditemukan</p>
@@ -311,6 +319,18 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
             Sistem tidak dapat menemukan file 3D model di path:<br/>
             <code className="text-yellow-300">public/models/avatar_bisindo.glb</code><br/>
             Harap masukkan file GLB avatar yang memiliki struktur tulang (rigged) yang sesuai.
+          </p>
+        </div>
+      )}
+
+      {/* WebGL Error fallback */}
+      {webglError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 px-4">
+          <span className="text-4xl mb-2">💻</span>
+          <p className="text-sm font-bold text-red-400 mb-1">WebGL Tidak Didukung</p>
+          <p className="text-[10px] text-white/60 text-center">
+            Peramban (browser) atau kartu grafismu gagal memuat konteks 3D (WebGL).<br/>
+            Avatar tidak dapat dirender. Fitur lainnya akan tetap berjalan normal.
           </p>
         </div>
       )}
