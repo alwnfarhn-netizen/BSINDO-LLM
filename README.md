@@ -4,7 +4,7 @@
 
 ### Platform AI Multimodal untuk Bahasa Isyarat Indonesia
 
-*Komunikasi dua arah BISINDO ↔ Bahasa Indonesia — real-time, inklusif, berbasis komunitas Tuli*
+*Komunikasi dua arah BISINDO ↔ Bahasa Indonesia — real-time, inklusif*
 
 <br/>
 
@@ -499,9 +499,3 @@ Didistribusikan di bawah Lisensi **MIT**. Lihat [`LICENSE`](LICENSE) untuk detai
 ---
 
 <div align="center">
-
-Dibuat dengan ❤️ untuk komunitas Tuli Indonesia
-
-[⭐ Star repo ini](https://github.com/alwnfarhn-netizen/BSINDO-LLM) jika proyek ini bermanfaat
-
-</div>
