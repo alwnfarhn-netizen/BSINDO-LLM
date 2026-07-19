@@ -319,11 +319,15 @@ def create_teacher_assistant(openai_api_key: str = "") -> TeacherAssistant:
     Buat TeacherAssistant dengan koneksi DB dari environment variables.
     Dipanggil dari server.py saat startup.
     """
-    conn = psycopg2.connect(
-        host=os.environ.get("DB_HOST", "localhost"),
-        port=int(os.environ.get("DB_PORT", 5432)),
-        dbname=os.environ.get("DB_NAME", "bisindo_llm"),
-        user=os.environ.get("DB_USER", "postgres"),
-        password=os.environ.get("DB_PASS", ""),
-    )
+    db_url = os.environ.get("DATABASE_URL")
+    if db_url:
+        conn = psycopg2.connect(db_url)
+    else:
+        conn = psycopg2.connect(
+            host=os.environ.get("DB_HOST", "localhost"),
+            port=int(os.environ.get("DB_PORT", 5432)),
+            dbname=os.environ.get("DB_NAME", "bisindo_llm"),
+            user=os.environ.get("DB_USER", "postgres"),
+            password=os.environ.get("DB_PASS", ""),
+        )
     return TeacherAssistant(db_conn=conn, openai_api_key=openai_api_key)

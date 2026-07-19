@@ -10,7 +10,7 @@
 //   - Dukungan 33 pose + 21+21 hand landmarks
 // ============================================================
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
@@ -63,6 +63,8 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
   const bonesRef    = useRef<Map<string, THREE.Bone>>(new Map());
   const frameIdRef  = useRef<number>(0);
   const clockRef    = useRef<THREE.Clock>(new THREE.Clock());
+  const [loadError, setLoadError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // ---------- Setup scene ----------
   useEffect(() => {
@@ -114,12 +116,47 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
         model.scale.setScalar(1);
         scene.add(model);
         modelRef.current = model;
+        setIsLoaded(true);
 
         // Kumpulkan semua bones ke Map untuk akses O(1)
         const boneMap = new Map<string, THREE.Bone>();
         model.traverse((child) => {
           if ((child as THREE.Bone).isBone) {
-            boneMap.set(child.name, child as THREE.Bone);
+            let name = child.name;
+            boneMap.set(name, child as THREE.Bone);
+
+            // Jika model dari Mixamo (seperti Xbot)
+            if (name.includes('mixamorig:')) {
+              name = name.replace('mixamorig:', '');
+              
+              if (name === 'LeftArm') boneMap.set('LeftUpperArm', child as THREE.Bone);
+              if (name === 'RightArm') boneMap.set('RightUpperArm', child as THREE.Bone);
+              if (name === 'LeftForeArm') boneMap.set('LeftLowerArm', child as THREE.Bone);
+              if (name === 'RightForeArm') boneMap.set('RightLowerArm', child as THREE.Bone);
+              if (name === 'LeftUpLeg') boneMap.set('LeftUpperLeg', child as THREE.Bone);
+              if (name === 'RightUpLeg') boneMap.set('RightUpperLeg', child as THREE.Bone);
+              if (name === 'LeftLeg') boneMap.set('LeftLowerLeg', child as THREE.Bone);
+              if (name === 'RightLeg') boneMap.set('RightLowerLeg', child as THREE.Bone);
+              
+              if (name === 'LeftHand') {
+                boneMap.set('LeftHand', child as THREE.Bone);
+                boneMap.set('Left_Wrist', child as THREE.Bone);
+              }
+              if (name === 'RightHand') {
+                boneMap.set('RightHand', child as THREE.Bone);
+                boneMap.set('Right_Wrist', child as THREE.Bone);
+              }
+
+              const handMatch = name.match(/^(Left|Right)Hand(Thumb|Index|Middle|Ring|Pinky)([1-4])$/);
+              if (handMatch) {
+                const side = handMatch[1];
+                const finger = handMatch[2];
+                const index = parseInt(handMatch[3]) - 1;
+                boneMap.set(`${side}_${finger}${index}`, child as THREE.Bone);
+              }
+              
+              if (name === 'Head') boneMap.set('Head', child as THREE.Bone);
+            }
           }
         });
         bonesRef.current = boneMap;
@@ -137,7 +174,10 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
         }
       },
       undefined,
-      (err) => console.error("[Avatar3D] Gagal load GLB:", err)
+      (err) => {
+        console.error("[Avatar3D] Gagal load GLB:", err);
+        setLoadError(true);
+      }
     );
 
     // Render loop
@@ -253,12 +293,25 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
       )}
 
       {/* Loading placeholder (sebelum GLB dimuat) */}
-      {!modelRef.current && (
+      {!isLoaded && !loadError && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
             <div className="text-4xl mb-3 animate-pulse">🤟</div>
             <p className="text-xs text-white/40">Memuat avatar BISINDO…</p>
           </div>
+        </div>
+      )}
+
+      {/* Error placeholder (jika GLB gagal dimuat) */}
+      {loadError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 px-4">
+          <span className="text-4xl mb-2">⚠️</span>
+          <p className="text-sm font-bold text-red-400 mb-1">Avatar 3D Tidak Ditemukan</p>
+          <p className="text-[10px] text-white/60 text-center">
+            Sistem tidak dapat menemukan file 3D model di path:<br/>
+            <code className="text-yellow-300">public/models/avatar_bisindo.glb</code><br/>
+            Harap masukkan file GLB avatar yang memiliki struktur tulang (rigged) yang sesuai.
+          </p>
         </div>
       )}
     </div>

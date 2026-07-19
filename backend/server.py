@@ -17,6 +17,10 @@ Jalankan:
   python3 server.py
 """
 
+# simple-websocket digunakan untuk mendukung WebSocket di mode threading
+# (tanpa eventlet/gevent yang menyebabkan deadlock dengan PyTorch)
+# pip install simple-websocket
+
 import os
 import base64
 import numpy as np
@@ -75,25 +79,32 @@ room_synthesizers: dict[str, BISINDOSynthesizer] = {}
 
 # ── Startup ───────────────────────────────────────────────────────────────────
 
+_initialized = False
+
 @app.before_request
 def startup():
     """
     Inisialisasi semua komponen saat pertama kali request masuk.
     (Gunakan proper startup hook di production.)
     """
-    global detector, synthesizer, teacher_assistant, db_conn, embedding_model
+    global detector, synthesizer, teacher_assistant, db_conn, embedding_model, _initialized
 
-    if detector is not None:
+    if _initialized:
         return  # sudah di-init
+    _initialized = True
 
     print("[Server] Menginisialisasi BISINDO-LLM server...")
 
-    # Detector holistic
-    detector = BISINDOHolisticDetector(
-        min_detection_confidence=0.7,
-        min_tracking_confidence=0.6,
-    )
-    print("[Server] ✓ BISINDOHolisticDetector siap")
+    try:
+        detector = BISINDOHolisticDetector(
+            min_detection_confidence=0.7,
+            min_tracking_confidence=0.6,
+        )
+        print("[Server] ✓ BISINDOHolisticDetector siap")
+    except AttributeError as e:
+        print(f"[Server] ⚠️ Gagal memuat HolisticDetector: {e}")
+        print("[Server] ⚠️ Fitur kamera dinonaktifkan sementara (bug dependensi Windows). Fitur Teks-ke-3D tetap berjalan.")
+        detector = None
 
     # PointNet synthesizer (hanya jika model file tersedia)
     if os.path.exists(MODEL_PATH):
@@ -108,10 +119,14 @@ def startup():
 
     # Database
     try:
-        db_conn = psycopg2.connect(
-            host=DB_HOST, port=DB_PORT,
-            dbname=DB_NAME, user=DB_USER, password=DB_PASS
-        )
+        db_url = os.environ.get("DATABASE_URL")
+        if db_url:
+            db_conn = psycopg2.connect(db_url)
+        else:
+            db_conn = psycopg2.connect(
+                host=DB_HOST, port=DB_PORT,
+                dbname=DB_NAME, user=DB_USER, password=DB_PASS
+            )
         print("[Server] ✓ Database terhubung")
     except Exception as e:
         print(f"[Server] ✗ Database gagal: {e}")
@@ -219,6 +234,8 @@ def handle_frame(data: dict):
         return
 
     # Deteksi holistic
+    if detector is None:
+        return
     coords, _ = detector.process_frame(frame_bgr, draw_landmarks=False)
 
     # Synthesizer untuk room ini
@@ -385,4 +402,5 @@ if __name__ == "__main__":
     print("  BISINDO-LLM Server")
     print("  http://localhost:5001")
     print("=" * 50)
-    socketio.run(app, host="0.0.0.0", port=5001, debug=False)
+    startup()
+    socketio.run(app, host="0.0.0.0", port=5001, debug=False, allow_unsafe_werkzeug=True)
