@@ -81,9 +81,9 @@ export default function TeacherPanel({ sessionId: propSessionId }: TeacherPanelP
   });
 
   return (
-    <div className="flex flex-col h-full bg-gray-950 text-white">
+    <div className="flex flex-col h-full bg-transparent">
       {/* ─── Header ─── */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 bg-white/5">
         <div className="flex items-center gap-3">
           <span className="text-lg">👩‍🏫</span>
           <div>
@@ -93,9 +93,9 @@ export default function TeacherPanel({ sessionId: propSessionId }: TeacherPanelP
         </div>
 
         {/* Status koneksi */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/20 border border-white/5">
           <div
-            className={`w-2 h-2 rounded-full ${
+            className={`w-1.5 h-1.5 rounded-full ${
               connected ? "bg-green-500 animate-pulse" : "bg-red-500"
             }`}
           />
@@ -106,7 +106,7 @@ export default function TeacherPanel({ sessionId: propSessionId }: TeacherPanelP
       </div>
 
       {/* ─── Counter badges ─── */}
-      <div className="flex gap-2 px-4 py-2 border-b border-white/10">
+      <div className="flex gap-2 px-5 py-3 border-b border-white/5 bg-black/10">
         <CountBadge label="Info" count={counts.info} color="blue" />
         <CountBadge label="Minor" count={counts.minor} color="amber" />
         <CountBadge label="Perlu koreksi" count={counts.significant} color="red" />
@@ -116,10 +116,10 @@ export default function TeacherPanel({ sessionId: propSessionId }: TeacherPanelP
       </div>
 
       {/* ─── Feedback feed ─── */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 custom-scrollbar">
         {feedbackQueue.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 text-center">
-            <p className="text-3xl mb-3">🤟</p>
+          <div className="flex flex-col items-center justify-center h-40 text-center animate-fade-in opacity-60">
+            <p className="text-3xl mb-3 drop-shadow-lg">🤟</p>
             <p className="text-sm text-white/40">Menunggu isyarat siswa…</p>
             <p className="text-[10px] text-white/25 mt-1">
               Umpan balik BISINDO ↔ SIBI akan muncul di sini
@@ -137,14 +137,13 @@ export default function TeacherPanel({ sessionId: propSessionId }: TeacherPanelP
       </div>
 
       {/* ─── Footer actions ─── */}
-      <div className="flex gap-2 px-3 py-3 border-t border-white/10">
+      <div className="flex gap-3 px-4 py-4 border-t border-white/5 bg-white/5">
         <button
           onClick={() => {
             setSessionSummary(buildSummary());
             setShowSummary(true);
           }}
-          className="flex-1 text-xs py-2 rounded-lg bg-white/5 hover:bg-white/10
-                     text-white/70 transition-colors border border-white/10"
+          className="glass-button flex-1 text-xs py-2.5 rounded-xl text-white/80 font-medium tracking-wide flex items-center justify-center gap-2"
         >
           📊 Ringkasan Sesi
         </button>
@@ -154,8 +153,8 @@ export default function TeacherPanel({ sessionId: propSessionId }: TeacherPanelP
             setCounts({ info: 0, minor: 0, significant: 0 });
             setWordHistory([]);
           }}
-          className="text-xs px-3 py-2 rounded-lg bg-white/5 hover:bg-red-900/40
-                     text-white/50 hover:text-red-400 transition-colors border border-white/10"
+          className="text-xs px-4 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20
+                     text-rose-400 hover:text-rose-300 transition-all duration-300 border border-rose-500/20"
         >
           Reset
         </button>
@@ -185,15 +184,15 @@ function CountBadge({
   color: "blue" | "amber" | "red";
 }) {
   const colors = {
-    blue: "bg-blue-900/50 text-blue-400 border-blue-700/40",
-    amber: "bg-amber-900/50 text-amber-400 border-amber-700/40",
-    red: "bg-red-900/50 text-red-400 border-red-700/40",
+    blue: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30 shadow-indigo-500/10",
+    amber: "bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-amber-500/10",
+    red: "bg-rose-500/20 text-rose-300 border-rose-500/30 shadow-rose-500/10",
   };
 
   return (
     <div
-      className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px]
-                  border font-medium ${colors[color]}`}
+      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px]
+                  border shadow-sm font-medium tracking-wide ${colors[color]}`}
     >
       <span className="font-bold tabular-nums">{count}</span>
       <span className="opacity-70">{label}</span>
@@ -216,8 +215,8 @@ function SessionSummaryModal({
       : "0.0";
 
   return (
-    <div className="absolute inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-900 rounded-2xl border border-white/10 w-full max-w-sm p-5 space-y-4">
+    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div className="bg-slate-900/90 rounded-2xl border border-white/10 shadow-2xl shadow-indigo-500/10 w-full max-w-sm p-6 space-y-5 animate-slide-up">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-sm">Ringkasan sesi</h3>
           <button
@@ -274,18 +273,17 @@ function SessionSummaryModal({
         )}
 
         {/* Actions */}
-        <div className="flex gap-2 pt-1">
+        <div className="flex gap-3 pt-2">
           <button
             onClick={onExport}
-            className="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500
-                       text-white text-xs font-medium transition-colors"
+            className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-500/20
+                       text-white text-xs font-semibold tracking-wide transition-all duration-300"
           >
             Export JSON
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10
-                       text-white/60 text-xs transition-colors"
+            className="px-5 py-2.5 rounded-xl glass-button text-white/80 text-xs font-medium"
           >
             Tutup
           </button>
