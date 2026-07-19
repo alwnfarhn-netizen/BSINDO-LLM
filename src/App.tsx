@@ -1,7 +1,7 @@
 // ============================================================
 // App.tsx
 // Root component BISINDO-LLM
-// Layout: Receptive kiri | Avatar 3D tengah | Teacher Panel kanan
+// Layout: Receptive kiri | Avatar 3D kanan
 // ============================================================
 
 import { useState, useRef, useCallback, useEffect } from "react";
@@ -9,7 +9,6 @@ import Webcam from "react-webcam";
 import { v4 as uuidv4 } from "uuid";
 import { useBISINDOSocket } from "./hooks/useBISINDOSocket";
 import Avatar3D from "./components/Avatar3D";
-import TeacherPanel from "./components/TeacherPanel";
 import {
   WordDetectedEvent,
   SentenceEvent,
@@ -34,7 +33,7 @@ export default function App() {
   const animQueueRef = useRef<SignAnimationEvent[]>([]);
 
   // ---------- WebSocket (student_room) ----------
-  const { connected, sendFrame, sendSpeak, forceSynthesis, resetSession } =
+  const { connected, sendFrame, sendSpeak, forceSynthesis } =
     useBISINDOSocket({
       room: "student_room",
       sessionId: SESSION_ID,
@@ -103,109 +102,81 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden font-sans">
-      {/* ─── Top bar ─── */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-slate-900/30 backdrop-blur-md shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🤟</span>
-          <span className="font-bold text-sm tracking-wide">BISINDO-LLM</span>
-          <span className="text-[10px] text-white/30 ml-1">Jawa Timur</span>
+    <div className="h-screen w-full bg-[#111111] text-white flex flex-col font-sans overflow-hidden">
+      {/* Top Header */}
+      <div className="flex border-b border-white/20 shrink-0">
+        <div className="w-1/2 text-center py-4 text-lg font-medium border-r border-white/20">
+          BISINDO Isyarat → Indonesia
         </div>
-
-        <div className="flex items-center gap-3">
-          <div className={`flex items-center gap-1.5 text-[10px] ${connected ? "text-green-400" : "text-red-400"}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-green-400 animate-pulse" : "bg-red-400"}`} />
-            {connected ? "Terhubung" : "Terputus"}
-          </div>
-          <button
-            onClick={resetSession}
-            className="text-[10px] text-white/30 hover:text-white/60 transition-colors"
-          >
-            Reset sesi
-          </button>
+        <div className="w-1/2 text-center py-4 text-lg font-medium">
+          Indonesia → BISINDO
         </div>
-      </header>
+      </div>
 
-      {/* ─── Main layout: 3 columns with breathing room ─── */}
-      <main className="flex-1 p-4 grid grid-cols-[320px_1fr_300px] gap-4 overflow-hidden">
-
-        {/* ── LEFT: Receptive (Siswa) ── */}
-        <section className="glass-panel rounded-2xl flex flex-col overflow-hidden">
-          <div className="px-4 py-3 text-[10px] font-bold text-indigo-300/80 uppercase tracking-widest border-b border-white/5 bg-white/5">
-            📷 Receptive — Isyarat BISINDO
-          </div>
-
-          {/* Webcam */}
-          <div className="relative bg-black/50 aspect-video shrink-0 border-b border-white/5">
+      {/* Main Content */}
+      <div className="flex flex-1 overflow-hidden">
+        
+        {/* LEFT PANEL */}
+        <div className="w-1/2 flex flex-col border-r border-white/20 p-4">
+          <div className="relative w-full h-[60%] bg-black rounded overflow-hidden shrink-0">
             <Webcam
               ref={webcamRef}
               audio={false}
               screenshotFormat="image/jpeg"
               screenshotQuality={0.7}
               videoConstraints={{ width: 640, height: 480, facingMode: "user" }}
-              className="w-full h-full object-cover opacity-90"
+              className="w-full h-full object-cover"
             />
             {isCapturing && (
-              <div className="absolute top-2 right-2 flex items-center gap-1.5
-                              bg-red-600 rounded-full px-2 py-0.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                <span className="text-[9px] font-medium">LIVE</span>
-              </div>
+              <div className="absolute top-4 right-4 w-3 h-3 rounded-full bg-red-500 animate-pulse" />
             )}
             {latestWord && isCapturing && (
-              <div className="absolute bottom-2 left-2 right-2 text-center
-                              bg-black/70 backdrop-blur rounded-lg py-1.5">
-                <span className="font-bold text-sm">{latestWord.word}</span>
-                <span className="text-[10px] text-white/50 ml-2">
-                  {(latestWord.confidence * 100).toFixed(0)}%
-                </span>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 px-4 py-1 rounded text-white">
+                {latestWord.word}
               </div>
             )}
           </div>
 
-          {/* Capture control */}
-          <div className="px-4 py-3 border-b border-white/5 bg-white/5">
-            <button
-              onClick={isCapturing ? stopCapture : startCapture}
-              disabled={!connected}
-              className={`w-full py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-300 shadow-lg
-                ${isCapturing
-                  ? "bg-rose-500/80 hover:bg-rose-500 text-white shadow-rose-500/20"
-                  : "bg-indigo-500/80 hover:bg-indigo-500 text-white disabled:opacity-40 shadow-indigo-500/20"
-                }`}
-            >
-              {isCapturing ? "⏹ Stop Perekaman" : "▶ Mulai Merekam"}
-            </button>
+          <div className="flex-1 mt-4 relative bg-[#0a0a0a] rounded p-4">
+            <div className="absolute inset-0 overflow-y-auto p-4 text-xl">
+              {sentences.map((s, i) => (
+                <div key={i} className="mb-2">{s}</div>
+              ))}
+            </div>
           </div>
 
-          {/* Kalimat output */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
-            <div className="text-[10px] text-white/30 mb-2">Kalimat hasil translasi:</div>
-            {sentences.length === 0 ? (
-              <p className="text-[11px] text-white/20 italic">
-                Belum ada kalimat. Mulai berisyarat di depan kamera.
-              </p>
-            ) : (
-              sentences.map((s, i) => (
-                <div
-                  key={i}
-                  className="text-sm text-white/80 bg-white/5 rounded-xl px-3 py-2 leading-relaxed"
-                >
-                  {s}
-                </div>
-              ))
-            )}
+          <div className="flex justify-between items-center mt-4 text-sm text-gray-300 shrink-0">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={isCapturing ? stopCapture : startCapture}
+                disabled={!connected}
+                className={`px-4 py-1.5 border border-white/20 rounded hover:bg-white/10 transition-colors ${
+                  isCapturing ? "text-red-400 border-red-500/50" : ""
+                } disabled:opacity-50`}
+              >
+                {isCapturing ? "Stop" : "Record"}
+              </button>
+              {!connected && <span className="text-red-400 text-xs">Disconnected</span>}
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 cursor-pointer hover:text-white">
+                <input type="checkbox" className="w-4 h-4 rounded bg-[#222] border-gray-700 accent-blue-500" defaultChecked />
+                Autocorrect
+              </label>
+              <button 
+                onClick={() => setSentences([])} 
+                className="px-4 py-1.5 border border-white/20 rounded hover:bg-white/10 transition-colors"
+              >
+                Clear
+              </button>
+            </div>
           </div>
-        </section>
+        </div>
 
-        {/* ── CENTER: Avatar 3D ── */}
-        <section className="glass-panel rounded-2xl flex flex-col overflow-hidden">
-          <div className="px-4 py-3 text-[10px] font-bold text-indigo-300/80 uppercase tracking-widest border-b border-white/5 bg-white/5">
-            🤟 Avatar 3D — BISINDO Expressive
-          </div>
-
-          {/* Avatar */}
-          <div className="flex-1 p-3">
+        {/* RIGHT PANEL */}
+        <div className="w-1/2 flex flex-col p-4">
+          <div className="relative w-full h-[60%] bg-[#1a1a1a] rounded overflow-hidden shrink-0 flex items-center justify-center">
             <Avatar3D
               animation={currentAnimation}
               isPlaying={isAvatarPlaying}
@@ -213,39 +184,40 @@ export default function App() {
             />
           </div>
 
-          {/* Input teks untuk expressive */}
-          <div className="px-4 py-4 border-t border-white/5 bg-white/5 space-y-3">
-            <div className="text-[11px] text-white/50 tracking-wide">
-              Ketik teks Bahasa Indonesia → Avatar akan memperagakan isyarat BISINDO:
+          <div className="flex-1 mt-4 relative bg-[#0a0a0a] rounded">
+            <textarea
+              value={speakInput}
+              onChange={(e) => setSpeakInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && (e.preventDefault(), handleSpeak())}
+              placeholder="Type sentence here..."
+              className="absolute inset-0 w-full h-full bg-transparent resize-none outline-none text-xl p-4 text-white placeholder-gray-700"
+            />
+          </div>
+
+          <div className="flex justify-between items-center mt-4 text-sm text-gray-300 shrink-0">
+            <div className="flex items-center gap-4">
+              <span>Signing Speed</span>
+              <input type="range" className="w-32 accent-blue-500" />
             </div>
-            <div className="flex gap-2">
-              <input
-                value={speakInput}
-                onChange={(e) => setSpeakInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSpeak()}
-                placeholder="Contoh: selamat pagi"
-                className="flex-1 bg-black/20 border border-white/10 rounded-xl
-                           px-4 py-2.5 text-sm text-white placeholder-white/30
-                           focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-300"
-              />
+            
+            <div className="flex items-center gap-4">
               <button
                 onClick={handleSpeak}
                 disabled={!connected || !speakInput.trim()}
-                className="px-5 py-2.5 bg-indigo-600/90 hover:bg-indigo-500 disabled:opacity-40 shadow-lg shadow-indigo-500/20
-                           rounded-xl text-xs font-semibold tracking-wide transition-all duration-300"
+                className="px-6 py-1.5 border border-white/20 rounded hover:bg-white/10 transition-colors disabled:opacity-50"
               >
-                Peragakan
+                Start
               </button>
+              <label className="flex items-center gap-2 cursor-pointer hover:text-white">
+                <input type="checkbox" className="w-4 h-4 rounded bg-[#222] border-gray-700 accent-blue-500" defaultChecked />
+                BISINDO Gloss
+              </label>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* ── RIGHT: Teacher Panel ── */}
-        <section className="glass-panel rounded-2xl overflow-hidden">
-          <TeacherPanel sessionId={SESSION_ID} />
-        </section>
-
-      </main>
+      </div>
     </div>
   );
 }
+
