@@ -17,7 +17,7 @@ import {
   SignAnimationEvent,
 } from "../types/bisindo";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL ?? "http://localhost:5001";
+const SERVER_URL = (import.meta as any).env.VITE_SERVER_URL ?? "http://localhost:5001";
 
 type RoomType = "student_room" | "teacher_room";
 

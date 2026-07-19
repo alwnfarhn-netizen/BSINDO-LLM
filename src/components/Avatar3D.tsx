@@ -12,7 +12,9 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import * as THREE from "three";
+// @ts-ignore
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+// @ts-ignore
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { AvatarProps, AvatarKeyframe } from "../types/bisindo";
 
@@ -119,7 +121,7 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
     const loader = new GLTFLoader();
     loader.load(
       "/models/avatar_bisindo.glb",
-      (gltf) => {
+      (gltf: any) => {
         const model = gltf.scene;
         model.scale.setScalar(1);
         scene.add(model);
@@ -128,31 +130,31 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
 
         // Kumpulkan semua bones ke Map untuk akses O(1)
         const boneMap = new Map<string, THREE.Bone>();
-        model.traverse((child) => {
-          if ((child as THREE.Bone).isBone) {
+        model.traverse((child: any) => {
+          if (child.isBone) {
             let name = child.name;
-            boneMap.set(name, child as THREE.Bone);
+            boneMap.set(name, child);
 
             // Jika model dari Mixamo (seperti Xbot)
             if (name.includes('mixamorig:')) {
               name = name.replace('mixamorig:', '');
               
-              if (name === 'LeftArm') boneMap.set('LeftUpperArm', child as THREE.Bone);
-              if (name === 'RightArm') boneMap.set('RightUpperArm', child as THREE.Bone);
-              if (name === 'LeftForeArm') boneMap.set('LeftLowerArm', child as THREE.Bone);
-              if (name === 'RightForeArm') boneMap.set('RightLowerArm', child as THREE.Bone);
-              if (name === 'LeftUpLeg') boneMap.set('LeftUpperLeg', child as THREE.Bone);
-              if (name === 'RightUpLeg') boneMap.set('RightUpperLeg', child as THREE.Bone);
-              if (name === 'LeftLeg') boneMap.set('LeftLowerLeg', child as THREE.Bone);
-              if (name === 'RightLeg') boneMap.set('RightLowerLeg', child as THREE.Bone);
+              if (name === 'LeftArm') boneMap.set('LeftUpperArm', child);
+              if (name === 'RightArm') boneMap.set('RightUpperArm', child);
+              if (name === 'LeftForeArm') boneMap.set('LeftLowerArm', child);
+              if (name === 'RightForeArm') boneMap.set('RightLowerArm', child);
+              if (name === 'LeftUpLeg') boneMap.set('LeftUpperLeg', child);
+              if (name === 'RightUpLeg') boneMap.set('RightUpperLeg', child);
+              if (name === 'LeftLeg') boneMap.set('LeftLowerLeg', child);
+              if (name === 'RightLeg') boneMap.set('RightLowerLeg', child);
               
               if (name === 'LeftHand') {
-                boneMap.set('LeftHand', child as THREE.Bone);
-                boneMap.set('Left_Wrist', child as THREE.Bone);
+                boneMap.set('LeftHand', child);
+                boneMap.set('Left_Wrist', child);
               }
               if (name === 'RightHand') {
-                boneMap.set('RightHand', child as THREE.Bone);
-                boneMap.set('Right_Wrist', child as THREE.Bone);
+                boneMap.set('RightHand', child);
+                boneMap.set('Right_Wrist', child);
               }
 
               const handMatch = name.match(/^(Left|Right)Hand(Thumb|Index|Middle|Ring|Pinky)([1-4])$/);
@@ -160,10 +162,10 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
                 const side = handMatch[1];
                 const finger = handMatch[2];
                 const index = parseInt(handMatch[3]) - 1;
-                boneMap.set(`${side}_${finger}${index}`, child as THREE.Bone);
+                boneMap.set(`${side}_${finger}${index}`, child);
               }
               
-              if (name === 'Head') boneMap.set('Head', child as THREE.Bone);
+              if (name === 'Head') boneMap.set('Head', child);
             }
           }
         });
@@ -175,14 +177,14 @@ export default function Avatar3D({ animation, isPlaying, onAnimationEnd }: Avata
 
         // Putar animasi idle jika ada di file GLB
         if (gltf.animations.length > 0) {
-          const idleClip = gltf.animations.find((a) => a.name === "Idle");
+          const idleClip = gltf.animations.find((a: any) => a.name === "Idle");
           if (idleClip) {
             mixer.clipAction(idleClip).play();
           }
         }
       },
       undefined,
-      (err) => {
+      (err: any) => {
         console.error("[Avatar3D] Gagal load GLB:", err);
         setLoadError(true);
       }
