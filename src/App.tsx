@@ -130,7 +130,7 @@ export default function App() {
       <main className="flex-1 p-4 grid grid-cols-[320px_1fr_300px] gap-4 overflow-hidden">
 
         {/* ── LEFT: Receptive (Siswa) ── */}
-        <section className="glass-panel rounded-2xl flex flex-col overflow-hidden animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <section className="glass-panel rounded-2xl flex flex-col overflow-hidden">
           <div className="px-4 py-3 text-[10px] font-bold text-indigo-300/80 uppercase tracking-widest border-b border-white/5 bg-white/5">
             📷 Receptive — Isyarat BISINDO
           </div>
@@ -199,7 +199,7 @@ export default function App() {
         </section>
 
         {/* ── CENTER: Avatar 3D ── */}
-        <section className="glass-panel rounded-2xl flex flex-col overflow-hidden animate-slide-up" style={{ animationDelay: '0.2s' }}>
+        <section className="glass-panel rounded-2xl flex flex-col overflow-hidden">
           <div className="px-4 py-3 text-[10px] font-bold text-indigo-300/80 uppercase tracking-widest border-b border-white/5 bg-white/5">
             🤟 Avatar 3D — BISINDO Expressive
           </div>
@@ -241,7 +241,7 @@ export default function App() {
         </section>
 
         {/* ── RIGHT: Teacher Panel ── */}
-        <section className="glass-panel rounded-2xl overflow-hidden animate-slide-up" style={{ animationDelay: '0.3s' }}>
+        <section className="glass-panel rounded-2xl overflow-hidden">
           <TeacherPanel sessionId={SESSION_ID} />
         </section>
 
