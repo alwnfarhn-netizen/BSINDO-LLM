@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🤟 BISINDO-LLM
+# BISINDO-LLM
 
 ### Platform AI Multimodal untuk Bahasa Isyarat Indonesia
 
@@ -24,7 +24,7 @@
 
 <br/>
 
-| 📷 Receptive | 🤟 Expressive | 👩‍🏫 Teacher Assistant |
+| Receptive | Expressive | Teacher Assistant |
 |:---:|:---:|:---:|
 | BISINDO → Teks BI | Teks BI → Avatar 3D | Umpan balik BISINDO ↔ SIBI |
 | MediaPipe + PointNet | IndoBERT + pgvector | LLM + 3-layer cache |
@@ -51,7 +51,7 @@
 
 ---
 
-## 💡 Motivasi
+## Motivasi
 
 Komunikasi yang inklusif bukan berarti memaksa komunitas Tuli untuk terus-menerus beradaptasi dengan alat yang hanya mempermudah orang dengar. Kita membutuhkan alat yang benar-benar **menjembatani kesenjangan linguistik** — alat yang memahami bahasa isyarat *sebagai bahasa*, bukan sekadar terjemahan kata per kata dari bahasa lisan.
 
@@ -64,7 +64,7 @@ Proyek **BISINDO-LLM** bertujuan untuk:
 
 ---
 
-## 🗣️ BISINDO vs SIBI
+## BISINDO vs SIBI
 
 Di Indonesia, sering terjadi kebingungan antara dua sistem:
 
@@ -80,16 +80,16 @@ Di Indonesia, sering terjadi kebingungan antara dua sistem:
 
 ---
 
-## 🏗️ Arsitektur Sistem
+## Arsitektur Sistem
 
 ```mermaid
 graph TB
-    subgraph CLIENT["🖥️  src/client/  ·  React + TypeScript"]
-        CAM["📷 Webcam\nuserMedia"]
+    subgraph CLIENT["src/client/  ·  React + TypeScript"]
+        CAM["Webcam\nuserMedia"]
         MP["MediaPipe Holistic\n225 titik 3D"]
         WS_C["WebSocket client\nsocket.io-client"]
         AVATAR["Three.js\nAvatar 3D GLB"]
-        PANEL["👩‍🏫 Teacher Panel\nSIBIFeedback.tsx"]
+        PANEL["Teacher Panel\nSIBIFeedback.tsx"]
         STT["react-speech\nrecognition"]
     end
 
@@ -184,21 +184,21 @@ sequenceDiagram
 
 ---
 
-## ✨ Fitur Utama
+## Fitur Utama
 
-### 📷 Receptive — BISINDO → Teks Bahasa Indonesia
+### Receptive — BISINDO → Teks Bahasa Indonesia
 - Deteksi real-time via webcam dengan **MediaPipe Holistic** (tangan + pose tubuh, 225 titik 3D)
 - Klasifikasi isyarat temporal menggunakan **BiLSTM** dengan sliding window 30 frame
 - Confidence threshold 0.75, temporal voting untuk stabilitas prediksi
 - Sintesis kalimat Bahasa Indonesia natural via **IndoBERT + LangChain**
 
-### 🤟 Expressive — Teks BI → Avatar 3D
+### Expressive — Teks BI → Avatar 3D
 - Input teks Bahasa Indonesia → tokenisasi → **IndoBERT embedding**
 - Pencarian isyarat terdekat via **cosine similarity** di pgvector (9.500+ kata BISINDO)
 - Animasi **avatar 3D rigged** real-time dengan Three.js + SkeletonHelper
 - Fallback ke fingerspell BISINDO otomatis jika kata tidak ditemukan di database
 
-### 👩‍🏫 Teacher Assistant *(Fitur Baru)*
+### Teacher Assistant *(Fitur Baru)*
 - Analisis perbedaan **BISINDO regional Jawa Timur ↔ SIBI standar** per kata
 - 3-layer caching: RAM → PostgreSQL → LLM (hemat API cost)
 - Badge severity: `info` / `minor` / `significant`
@@ -207,7 +207,7 @@ sequenceDiagram
 
 ---
 
-## 📊 Contoh Output
+## Contoh Output
 
 ### 1. Receptive — BISINDO → Teks BI
 
@@ -331,7 +331,7 @@ BSINDO-LLM/
 
 ---
 
-## 🚀 Instalasi & Setup
+## Instalasi & Setup
 
 ### Prasyarat
 
@@ -418,7 +418,7 @@ FRONTEND_URL=http://localhost:3000
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 ```mermaid
 gantt
@@ -460,7 +460,7 @@ gantt
 
 ---
 
-## 🤝 Kontribusi
+## Kontribusi
 
 Kontribusi sangat disambut! Terutama dari:
 
